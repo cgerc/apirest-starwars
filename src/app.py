@@ -121,7 +121,23 @@ def delete_favorite_planet(planet_id):
 
      return jsonify({"msg: "Planeta favorito eliminado correctamente"}),200
                      
+@app.rout('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_favorite_person(people_id):
+ user_id= request.args.get('ser_id', type=int)
+ if not user_id:
+    raise APIException("Se requiere el ID del usuario", status_code=400)
 
+user= User.query.get(user_id)
+if not user:
+    raiser APIException("Usuario no encontrado", status_code=404)
+favorite= Favorite.query.filter_by(user_id=user_id, character_id=people_id).first()
+if not favorite:
+    raise APIException("Favorito no encontrado", status_code=404)
+
+    db.session.delete(favorite)
+    db.session.commit()
+
+    return jsonify ({"msg": "Personaje favorito eliminado correctamente"})
 
 
 return jsonify(favorite.serialize()), 201
