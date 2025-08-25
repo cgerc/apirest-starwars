@@ -72,6 +72,14 @@ def add_favorite_planet(planet_id):
     if not planet:
          raise APIException("Planeta no encontrado", status_code=404)
     
+    existing_favorite= Favorite.query.filter(user_id=user_id, planet_id=planet_id).first()
+    if existing_favorite:
+        raise APIException("El planeta ya esta en los favoritos del usuario", status_code=400)
+        favorie= Favorite(user_id=user_id, planet_id=planet_id)
+        dn.session.add(favorite)
+        db.session.commit()
+
+        return jsonify(favorite.serialize()), 201
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
