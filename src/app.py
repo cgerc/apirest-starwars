@@ -36,14 +36,17 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@app.route('/people', methods=['GET'])
+def get_all_people():
+    people= Character.query.all()
+    return jsonify ([person.serialize() for person in people]), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_person(people_id):
+    person= Character.query.get(people_id)
+    if not person:
+            raise APIException("Personaje no encontrado", status_code=404)
+    return jsonify(person.serialize()), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
