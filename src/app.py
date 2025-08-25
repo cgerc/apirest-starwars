@@ -59,7 +59,19 @@ def get_users_favorites:
     favorites= Favorite.query.filter_by(user_id=user_id).all()
     return jsonify([favorite.serialize() for favorite in favorites]), 200
 
-
+@app.route('/favorite/planet/<int:planet_id>', methods= ['POST'])
+def add_favorite_planet(planet_id):
+    data=request.get_json()
+    user_id= data.get('user_id') if data else None
+    if not user_id:
+         raise APIException("Se requiere el ID del usuario", status_code=400)
+    user= User.query.get(user_id)
+    if not user:
+         raise APIException("Usuario no encontrado", status_code=404)
+    planet= Planet.query.get(planet_id)
+    if not planet:
+         raise APIException("Planeta no encontrado", status_code=404)
+    
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
