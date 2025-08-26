@@ -55,7 +55,7 @@ class Character(db.Model):
             "id": self.id,
             "name": self.name,
             "species": self.species,
-            "homeworld": self.homeworld.name if self.homeworld else None
+           
         }
 
 

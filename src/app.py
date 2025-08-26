@@ -16,7 +16,8 @@ app.url_map.strict_slashes = False
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
+        "postgres://", "postgresql://")
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -27,19 +28,25 @@ CORS(app)
 setup_admin(app)
 
 # Handle/serialize errors like a JSON object
+
+
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 # Generate sitemap with all your endpoints
+
+
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
 
 @app.route('/people', methods=['GET'])
 def get_all_people():
     people = Character.query.all()
     return jsonify([person.serialize() for person in people]), 200
+
 
 @app.route('/people/<int:people_id>', methods=['GET'])
 def get_person(people_id):
@@ -47,6 +54,7 @@ def get_person(people_id):
     if not person:
         raise APIException("Personaje no encontrado", status_code=404)
     return jsonify(person.serialize()), 200
+
 
 @app.route('/users/favorites', methods=['GET'])
 def get_users_favorites():
@@ -58,6 +66,7 @@ def get_users_favorites():
         raise APIException("Usuario no encontrado", status_code=404)
     favorites = Favorite.query.filter_by(user_id=user_id).all()
     return jsonify([favorite.serialize() for favorite in favorites]), 200
+
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
@@ -74,14 +83,17 @@ def add_favorite_planet(planet_id):
     if not planet:
         raise APIException("Planeta no encontrado", status_code=404)
 
-    existing_favorite = Favorite.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+    existing_favorite = Favorite.query.filter_by(
+        user_id=user_id, planet_id=planet_id).first()
     if existing_favorite:
-        raise APIException("El planeta ya está en los favoritos del usuario", status_code=400)
+        raise APIException(
+            "El planeta ya está en los favoritos del usuario", status_code=400)
     favorite = Favorite(user_id=user_id, planet_id=planet_id)
     db.session.add(favorite)
     db.session.commit()
 
     return jsonify(favorite.serialize()), 201
+
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def add_favorite_person(people_id):
@@ -100,14 +112,17 @@ def add_favorite_person(people_id):
     if not person:
         raise APIException("Personaje no encontrado", status_code=404)
 
-    existing_favorite = Favorite.query.filter_by(user_id=user_id, character_id=people_id).first()
+    existing_favorite = Favorite.query.filter_by(
+        user_id=user_id, character_id=people_id).first()
     if existing_favorite:
-        raise APIException("El personaje ya está en los favoritos del usuario", status_code=400)
+        raise APIException(
+            "El personaje ya está en los favoritos del usuario", status_code=400)
     favorite = Favorite(user_id=user_id, character_id=people_id)
     db.session.add(favorite)
     db.session.commit()
 
     return jsonify(favorite.serialize()), 201
+
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(planet_id):
@@ -118,7 +133,8 @@ def delete_favorite_planet(planet_id):
     user = User.query.get(user_id)
     if not user:
         raise APIException("Usuario no encontrado", status_code=404)
-    favorite = Favorite.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+    favorite = Favorite.query.filter_by(
+        user_id=user_id, planet_id=planet_id).first()
     if not favorite:
         raise APIException("Favorito no encontrado", status_code=404)
 
@@ -126,6 +142,7 @@ def delete_favorite_planet(planet_id):
     db.session.commit()
 
     return jsonify({"msg": "Planeta favorito eliminado correctamente"}), 200
+
 
 @app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
 def delete_favorite_person(people_id):
@@ -136,7 +153,8 @@ def delete_favorite_person(people_id):
     user = User.query.get(user_id)
     if not user:
         raise APIException("Usuario no encontrado", status_code=404)
-    favorite = Favorite.query.filter_by(user_id=user_id, character_id=people_id).first()
+    favorite = Favorite.query.filter_by(
+        user_id=user_id, character_id=people_id).first()
     if not favorite:
         raise APIException("Favorito no encontrado", status_code=404)
 
@@ -144,6 +162,7 @@ def delete_favorite_person(people_id):
     db.session.commit()
 
     return jsonify({"msg": "Personaje favorito eliminado correctamente"}), 200
+
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
